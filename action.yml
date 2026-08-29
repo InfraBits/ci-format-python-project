@@ -1,0 +1,54 @@
+name: Format a Python project
+description: Re-formats a Python code base
+
+runs:
+  using: "composite"
+  steps:
+    - name: check for python project
+      id: check-project
+      shell: bash
+      run: |
+        if [ -f "poetry.lock" ];
+        then
+          echo "is_python_project=1" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: setup python
+      uses: infrabits/ci-setup-python@main
+      with:
+        install_dependencies: false
+        install_test_dependencies: true
+        install_tox: false
+      if: steps.check-project.outputs.is_python_project == '1'
+
+    - name: check for tools
+      id: check-tool
+      shell: bash
+      run: |
+        if poetry show -q black; then
+          echo "have_black=1" >> "$GITHUB_OUTPUT"
+        fi
+
+        if poetry show -q ruff; then
+          echo "have_ruff=1" >> "$GITHUB_OUTPUT"
+        fi
+
+        if poetry show -q djlint; then
+          echo "have_djlint=1" >> "$GITHUB_OUTPUT"
+        fi
+      if: steps.check-project.outputs.is_python_project == '1'
+
+    - name: execute ruff
+      shell: bash
+      run: poetry run -- ruff check --fix --exit-zero .
+      if: steps.check-project.outputs.is_python_project == '1' && steps.check-tool.outputs.have_ruff == '1'
+
+    - name: execute black
+      shell: bash
+      run: poetry run -- black .
+      if: steps.check-project.outputs.is_python_project == '1' && steps.check-tool.outputs.have_black == '1'
+
+    - name: execute djlint
+      shell: bash
+      run: poetry run -- djlint --reformat .
+      if: steps.check-project.outputs.is_python_project == '1' && steps.check-tool.outputs.have_djlint == '1'
