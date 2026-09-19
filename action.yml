@@ -50,5 +50,5 @@ runs:
 
     - name: execute djlint
       shell: bash
-      run: poetry run -- djlint --reformat .
+      run: poetry run -- djlint --reformat --warn .
       if: steps.check-project.outputs.is_python_project == '1' && steps.check-tool.outputs.have_djlint == '1'
