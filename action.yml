@@ -14,7 +14,7 @@ runs:
         fi
 
     - name: setup python
-      uses: infrabits/ci-setup-python@0a2dd968401b001362997490a977f0177a600232 # v1.6.0
+      uses: infrabits/ci-setup-python@e2b1af9cbd4f0cf31736b5ae234471b61aa41220 # v1.8.0
       with:
         install_dependencies: false
         install_test_dependencies: true
